@@ -2,18 +2,16 @@ import React, {useCallback, useState} from 'react';
 import ReactJson from 'react-json-view';
 import './style.scss';
 import {useTonConnectUI, useTonWallet} from "@tonconnect/ui-react";
-
+import {Address, toNano} from "ton-core";
+import {JettonMaster, TonClient} from "ton";
 
 const defaultTx = {
-	validUntil: Date.now() + 1000000,
+	validUntil: 0,
 	messages: [
 		{
-			address: '0:412410771DA82CBA306A55FA9E0D43C9D245E38133CB58F1457DFB8D5CD8892F',
-			amount: '20000000',
-		},
-		{
-			address: '0:E69F10CC84877ABF539F83F879291E5CA169451BA7BCE91A37A5CED3AB8080D3',
-			amount: '60000000',
+			address: '',
+			amount: toNano("0.15").toString(),
+			payload: ""
 		},
 	],
 };
@@ -23,18 +21,37 @@ export function TxForm() {
 	const wallet = useTonWallet();
 	const [tonConnectUi] = useTonConnectUI();
 
-	const onChange = useCallback((value: object) => setTx((value as { updated_src: typeof defaultTx }).updated_src), []);
+	if(wallet) {
+		const client = new TonClient({ endpoint: "https://toncenter.com/api/v2/jsonRPC" });
+		const jetton = Address.parseRaw("0:3a4d2191094e3a33d4601efa51bb52dc5baa354516e162b7706955385f8144a7");
+		const masterContract = JettonMaster.create(jetton);
+		const master = client.open(masterContract);
+
+		master.getWalletAddress(Address.parseRaw(wallet.account.address)).then(addr => {
+			const newTx = {
+				validUntil: Date.now() + 1000000,
+				messages: [
+					{
+						address: addr.toString(),
+						amount: toNano("0.15").toString(),
+						payload: ""
+					},
+				],
+			};
+
+			setTx(newTx);
+		});
+	}
 
 	return (
 		<div className="send-tx-form">
-			<h3>Configure and send transaction</h3>
-			<ReactJson src={defaultTx} theme="ocean" onEdit={onChange} onAdd={onChange} onDelete={onChange} />
-			{wallet ? (
+			<h3>FCK Lottery</h3>
+			{wallet && tx.validUntil > Date.now() ? (
 				<button onClick={() => tonConnectUi.sendTransaction(tx)}>
-					Send transaction
+					Play for 10 FCK
 				</button>
 			) : (
-				<button onClick={() => tonConnectUi.connectWallet()}>Connect wallet to send the transaction</button>
+				<button onClick={() => tonConnectUi.connectWallet()}>Connect wallet to start to play</button>
 			)}
 		</div>
 	);

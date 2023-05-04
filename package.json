@@ -5,16 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "tsc && GH_PAGES=true vite build",
+    "build": "tsc && vite build",
     "build:dev": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tonconnect/ui-react": "1.0.0-beta.4",
+    "buffer": "^6.0.3",
     "eruda": "^2.11.2",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
-    "react-json-view": "^1.21.3"
+    "react-json-view": "^1.21.3",
+    "ton": "^13.4.1",
+    "ton-core": "^0.49.0",
+    "ton-crypto": "^3.2.0",
+    "webpack": "^5.82.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.26",
